@@ -77,16 +77,15 @@ export default () =>
     .add("Test", () => (
       <>
       <Arc config={DefaultArcConfig}>
-        <DAO address={"0xcb4e66eca663fdb61818d52a152601ca6afef74f"}>
-          <DAO.Entity>
+        <DAO address={"0xcbe66eca663fdb61818d52a152601ca6afef74f"}>
+          <DAO.Entity _undefines={true}>
           <DAO.Data>
           {(entity: DAOEntity, data: DAOData) => (
-            <div>{data.name}</div>
-          )}
-          </DAO.Data>
-          <DAO.Data>
-          {(entity: DAOEntity, data: DAOData) => (
-            <div>{data.address}</div>
+            <>
+            {data ?
+            <div>{data.name}</div> :
+            <div>loading...</div>}
+            </>
           )}
           </DAO.Data>
           </DAO.Entity>

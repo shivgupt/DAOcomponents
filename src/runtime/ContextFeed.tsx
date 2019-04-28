@@ -7,7 +7,8 @@ const Spinner = require("react-spinkit");
 type ConsumerComponent = React.ExoticComponent<React.ConsumerProps<any>>
 
 export interface Props extends React.PropsWithChildren<{}> {
-  _consumers?: ConsumerComponent[]
+  _consumers?: ConsumerComponent[],
+  _undefines?: boolean
 }
 
 class ContextFeed extends React.Component<Props>
@@ -17,7 +18,7 @@ class ContextFeed extends React.Component<Props>
   }
 
   public render() {
-    const { children, _consumers } = this.props;
+    const { children, _consumers, _undefines } = this.props;
 
     if (!_consumers) {
       throw Error("Error: ContextFeed missing context consumer(s).");
@@ -43,7 +44,7 @@ class ContextFeed extends React.Component<Props>
             </Consumer>
           )
         } else {
-          if (values.indexOf(undefined) > -1) {
+          if (!_undefines && values.indexOf(undefined) > -1) {
             return <Spinner name='double-bounce' />
           } else {
             return children(...values);
@@ -54,6 +55,8 @@ class ContextFeed extends React.Component<Props>
       return RelayValues(0);
     }
 
+    // TODO: make sure the injection doesn't override props that the user
+    //       passes to their components
     // In this case, the child or children are components,
     // so we'll inject them with our _consumers
     if (children["length"]) {
@@ -62,14 +65,16 @@ class ContextFeed extends React.Component<Props>
 
       for (const child of childrenArray) {
         newChildren.push(React.cloneElement(child, {
-          _consumers
+          _consumers,
+          _undefines
         }));
       }
 
       return (<>{newChildren}</>);
     } else {
       return React.cloneElement(children as React.ReactElement, {
-        _consumers
+        _consumers,
+        _undefines
       });
     }
   }
@@ -80,7 +85,8 @@ export const CreateContextFeed = (consumer: ConsumerComponent) => (
     <ContextFeed _consumers={
       props._consumers ?
       [...props._consumers, consumer] :
-      [consumer]
-    } children={props.children} />
+      [consumer] }
+      _undefines={props._undefines}
+      children={props.children} />
   )
 );
